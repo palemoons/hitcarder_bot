@@ -49,15 +49,11 @@ def main():
     if os.path.exists('./config.json'):
         configs = json.loads(open('./config.json', 'r').read())
         users = configs["users"]
-        bot = configs["bot"]
+        bot_config = configs["bot"]
     else:
         print('⚠️未在当前目录下检测到配置文件')
         return
-
-    for user in users:
-        message = doDaka(user["username"], user["password"])
-        bot.send_friend_msg(qq=user["qq"], msg=message)
-
+    
     @miraicle.Mirai.receiver('FriendMessage')
     def receive_daka(bot: miraicle.Mirai, msg: miraicle.FriendMessage):
         if msg.plain in ['/打卡']:
@@ -65,7 +61,12 @@ def main():
             message = doDaka(user["username"], user["password"])
             bot.send_friend_msg(qq=user["qq"], msg=message)
 
-    bot = miraicle.Mirai(qq=bot["qq"], verify_key=bot["verify_key"], port=bot["port"])
+    bot = miraicle.Mirai(qq=bot_config["qq"], verify_key=bot_config["verify_key"], port=bot_config["port"])
+
+    for user in users:
+        message = doDaka(user["username"], user["password"])
+        print(message + ' 此次打卡结果bot不会通知结果')
+
     bot.run()
     
 
